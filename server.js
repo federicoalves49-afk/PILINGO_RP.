@@ -19,3 +19,6 @@ app.get("/", (req, res) => {
 app.listen(3000, () => {
     console.log("🌐 Servidor iniciado en http://localhost:3000");
 });
+const whitelistRoutes = require("./routes/whitelist");
+
+app.use("/api/whitelist", whitelistRoutes);
