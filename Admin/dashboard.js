@@ -1,49 +1,60 @@
-fetch("/api/whitelist")
-.then(res=>res.json())
-.then(data=>{
+async function cargarSolicitudes() {
 
-const tabla=document.getElementById("tabla");
+    const res = await fetch("/api/whitelist");
+    const data = await res.json();
 
-data.forEach(usuario=>{
+    const tabla = document.getElementById("tabla");
 
-tabla.innerHTML += `
+    tabla.innerHTML = "";
 
-<tr>
+    data.forEach(usuario => {
 
-<td>${usuario.nombre}</td>
+        tabla.innerHTML += `
+        <tr>
 
-<td>${usuario.discord}</td>
+            <td>${usuario.nombre}</td>
 
-<td>${usuario.estado}</td>
+            <td>${usuario.discord}</td>
 
-<td>
+            <td>${usuario.estado}</td>
 
-<button onclick="aprobar('${usuario._id}')">
-✅
-</button>
+            <td>
 
-<button onclick="rechazar('${usuario._id}')">
-❌
-</button>
+                <button onclick="aprobar('${usuario._id}')">
+                ✅ Aprobar
+                </button>
 
-</td>
+                <button onclick="rechazar('${usuario._id}')">
+                ❌ Rechazar
+                </button>
 
-</tr>
+            </td>
 
-`;
+        </tr>
+        `;
 
-});
-
-});
-
-function aprobar(id){
-
-alert("Solicitud aprobada: "+id);
+    });
 
 }
 
-function rechazar(id){
+async function aprobar(id){
 
-alert("Solicitud rechazada: "+id);
+    await fetch("/api/whitelist/" + id + "/aprobar", {
+        method:"PUT"
+    });
+
+    cargarSolicitudes();
 
 }
+
+async function rechazar(id){
+
+    await fetch("/api/whitelist/" + id + "/rechazar", {
+        method:"PUT"
+    });
+
+    cargarSolicitudes();
+
+}
+
+cargarSolicitudes();
