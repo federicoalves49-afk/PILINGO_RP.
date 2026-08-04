@@ -2,26 +2,51 @@ const express = require("express");
 const router = express.Router();
 const Whitelist = require("../models/Whitelist");
 
-// Guardar una solicitud
-router.post("/", async (req, res) => {
+// Obtener todas las solicitudes
+router.get("/", async (req, res) => {
     try {
-        const nuevaSolicitud = new Whitelist(req.body);
-        await nuevaSolicitud.save();
-
-        res.status(201).json({
-            mensaje: "Solicitud enviada correctamente."
-        });
+        const solicitudes = await Whitelist.find().sort({ fecha: -1 });
+        res.json(solicitudes);
     } catch (error) {
-        res.status(500).json({
-            error: "No se pudo guardar la solicitud."
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// Obtener todas las solicitudes
-router.get("/", async (req, res) => {
-    const solicitudes = await Whitelist.find();
-    res.json(solicitudes);
+// Crear solicitud
+router.post("/", async (req, res) => {
+    try {
+        const solicitud = new Whitelist(req.body);
+        await solicitud.save();
+        res.status(201).json(solicitud);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Aprobar solicitud
+router.put("/:id/aprobar", async (req, res) => {
+    try {
+        await Whitelist.findByIdAndUpdate(req.params.id, {
+            estado: "Aprobada"
+        });
+
+        res.json({ mensaje: "Solicitud aprobada." });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Rechazar solicitud
+router.put("/:id/rechazar", async (req, res) => {
+    try {
+        await Whitelist.findByIdAndUpdate(req.params.id, {
+            estado: "Rechazada"
+        });
+
+        res.json({ mensaje: "Solicitud rechazada." });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 module.exports = router;
